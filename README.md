@@ -4,7 +4,7 @@ Step-by-step guide to setup a new MacOS.
 
 # Terminal
 
-## Install software
+## Install terminal
 
 - [Homebrew](https://brew.sh/)
 - [Oh my Zsh](https://ohmyz.sh/)
@@ -14,7 +14,8 @@ Step-by-step guide to setup a new MacOS.
 - `brew install tree`
 - `brew install jq`
 
-## Configure terminal
+
+## Configure terminal and command line
 
 - iTerm2 preferences -> Profiles -> Keys → + icon
   - ⌘← : escape sequence OH
@@ -22,17 +23,44 @@ Step-by-step guide to setup a new MacOS.
   - ⌥← : escape sequence b
   - ⌥→ : escape sequence f
 
-## Configure command line
+- Create ~/.oh-my-zsh/custom/themes/apple-modified.zsh-theme
 
-Create ~/.oh-my-zsh/custom/themes/apple-modified.zsh-theme
+```script
+function toon {
+  echo -n ""
+}
 
-Modify `.zshrc`
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr '%F{red}*'   # display this when there are unstaged changes
+zstyle ':vcs_info:*' stagedstr '%F{yellow}+'  # display this when there are staged changes
+zstyle ':vcs_info:*' actionformats '%F{5}[%F{2}%b%F{3}|%F{1}%a%c%u%F{5}]%f '
+zstyle ':vcs_info:*' formats '%F{5}[%F{2}%b%c%u%F{5}]%f '
+zstyle ':vcs_info:svn:*' branchformat '%b'
+zstyle ':vcs_info:svn:*' actionformats '%F{5}[%F{2}%b%F{1}:%F{3}%i%F{3}|%F{1}%a%c%u%F{5}]%f '
+zstyle ':vcs_info:svn:*' formats '%F{5}[%F{2}%b%F{1}:%F{3}%i%c%u%F{5}]%f '
+zstyle ':vcs_info:*' enable git cvs svn
+
+theme_precmd () {
+  vcs_info
+}
+
+setopt prompt_subst
+PROMPT=$'
+%{$fg[green]%}%n@%M:%{$reset_color%}%{$fg[yellow]%}%/ %{$reset_color%}${vcs_info_msg_0_}%{$reset_color%}\
+%{$fg[green]%}$(toon) %{$reset_color%}'
+
+autoload -U add-zsh-hook
+add-zsh-hook precmd theme_precmd
+```
+
+- Modify `.zshrc`
 
 ``` script
 ZSH_THEME="apple-modified"
 ```
 
-Add to `.zshrc`
+- Add to `.zshrc`
 
 ``` script
 ##########################################
@@ -41,18 +69,12 @@ Add to `.zshrc`
 if [ -f ~/.bash_profile ]; then
     . ~/.bash_profile;
 fi
-
-# Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
-
-alias python=python3
-alias pip=pip3
 ##########################################
 # Personal configuration - End
 ##########################################
 ```
 
-Create `.bashprofile`
+- Create `.bashprofile`
 
 ``` shell
 if [ -f ~/.bashrc ]; then
@@ -60,11 +82,19 @@ if [ -f ~/.bashrc ]; then
 fi
 ```
 
-Create `.bashrc`
+- Create `.bashrc`
 
 ``` script
 alias ll='ls -laG'
+alias python=python3
+alias pip=pip3
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+export PATH=/opt/homebrew/bin:$PATH
 ```
+
 
 # Utilities
 
@@ -72,12 +102,17 @@ alias ll='ls -laG'
 - `brew install --cask rectangle`
 - `brew install --cask hiddenbar`
 - `brew install --cask alt-tab`
+- `brew install --cask obsidian`
+
 
 # CLI
 
+- `brew install bash`
+- `echo "/opt/homebrew/bin/bash" | sudo tee -a /etc/shells`
 - `brew install awscli`
 - `brew install docker`
 - `brew install kubernetes-cli`
+
 
 # Confluent-specific CLI
 
@@ -85,21 +120,39 @@ alias ll='ls -laG'
 - `brew tap common-fate/granted` [Getting Started](https://docs.commonfate.io/granted/getting-started)
 - `brew install granted`
 
+
 # Coding
 
-- `brew install docker`
 - `brew install --cask jetbrains-toolbox`
 - `brew install --cask visual-studio-code`
-- `brew install uv python`
 - `brew install --cask dbeaver-community`
 - `brew install git`
 - `brew install gh`
-- `brew install terraform`
+- `brew tap hashicorp/tap && brew install hashicorp/tap/terraform`
 - `curl -s "https://get.sdkman.io" | bash`
 - `brew install --cask postman`
+
+## Python
+
+- `brew install python`
+- `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
 
 # Personal
 
 - `brew install --cask spotify`
 - `brew install --cask whatsapp`
 - `brew install --cask telegram`
+
+
+# Configure behavior
+
+- Setup key repetition
+  - `defaults write -g ApplePressAndHoldEnabled -bool false`
+- Setup redo
+  - System settings --> Keyboard --> Keyboard Shortcuts --> App Shortcuts --> + --> All Applications
+  - Menu Title: `Redo`
+  - Keyboard Shortcut: ⌘Y
+- Add separation in the Dock
+  - `defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}'; killall Dock`
+  - `defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="small-spacer-tile";}'; killall Dock`
